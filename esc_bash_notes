@@ -20,14 +20,16 @@ spec:
       containers:
         - name: rollout-web
           image: nginx:1.25-alpine
+
+=============================================================================
 ** deploy: kubectl apply -f rollout-web.yaml
 ** rolling update: change version and run apply again. 
 ** command line: kubectl set image deployment/rollout-web.yaml web=nginx:1.27 alpine
-
+=================================================================
 Check Rollout Status:
 kubectl rollout status deployment/rollout-web
 deployment "rollout-web" successfully rolled out
-
+=================================================================================================
 Check history for rollouts:
 root@escbash-lab:~# cat rollout-status.txt 
 deployment "rollout-web" successfully rolled out
@@ -56,12 +58,12 @@ Pod Template:
   Tolerations:  <none>
 
 root@escbash-lab:~# 
-
+==================================================================================
 Commands introduced
 kubectl rollout history deployment/NAME - list the numbered revisions the Deployment has rolled out
 kubectl rollout history deployment/NAME --revision=N - show the details of one specific revision
 
-
+=================================================================================
 ROLLOUT Undo:
 Commands introduced
 kubectl rollout undo deployment/NAME - roll back to the revision before the current one
@@ -70,7 +72,7 @@ root@escbash-lab:~# kubectl rollout undo deployment/rollout-web
 Warning: resource deployments/rollout-web was previously managed with 'kubectl apply'. Rolling back will not update the kubectl.kubernetes.io/last-applied-configuration annotation, which may cause unexpected behavior on future 'kubectl apply' operations. Consider using 'kubectl apply' with your previous configuration file instead.
 deployment.apps/rollout-web rolled back
 root@escbash-lab:~# 
-
+=====================================================================
 SVC Commands introduced
 kubectl expose deployment NAME --port=PORT - create a ClusterIP Service in front of a Deployment
 kubectl get svc - list the Services in the cluster
@@ -117,3 +119,23 @@ NAME         TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)   AGE
 kubernetes   ClusterIP   10.96.0.1      <none>        443/TCP   109d
 shop         ClusterIP   10.96.130.40   <none>        80/TCP    4m44s
 root@escbash-lab:~# 
+
+=============================================================================================
+NodePort:
+A NodePort does everything a ClusterIP does - it still gives your pods one steady internal address - and then it does one more thing:
+it opens the same port number on every node of the cluster. Any traffic that arrives at a node's IP on that port is forwarded inward to your pods.
+
+Three ports, do not mix them up
+A NodePort Service actually names three ports, and it helps to keep them straight:
+
+targetPort - the port your container listens on (80 for nginx). ---------------- container
+port - the port the Service itself answers on inside the cluster. -------------- 
+nodePort - the port opened on every node for the outside world.
+
+
+
+kubectl create deployment web-lab --image=nginx:alpine
+kubectl rollout status deployment/web-lab --timeout=20s
+kubectl expose deployment web-lab --name=web-np --type=NodePort --port=80
+kubectl get svc web-np
+
