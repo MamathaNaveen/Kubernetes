@@ -139,3 +139,10 @@ kubectl rollout status deployment/web-lab --timeout=20s
 kubectl expose deployment web-lab --name=web-np --type=NodePort --port=80
 kubectl get svc web-np
 
+
+============================================================================================
+kubectl port-forward svc/web-np 8080:80
+
+portforward you creating tunnel from localhost to service on cluster which redirects requests from localhost directly for web-app untill its open for debug when there issue with nodeport not responding. 
+===============================================================================
+
