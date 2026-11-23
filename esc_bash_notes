@@ -141,8 +141,39 @@ kubectl get svc web-np
 
 
 ============================================================================================
+just need to poke your own app from your machine for a minute? Do not change the type at all - leave it ClusterIP and run kubectl port-forward
+
 kubectl port-forward svc/web-np 8080:80
 
 portforward you creating tunnel from localhost to service on cluster which redirects requests from localhost directly for web-app untill its open for debug when there issue with nodeport not responding. 
-===============================================================================
+=======================LOAD Balancer without cloud connection========================================================
+For a production app you usually want one clean, stable, public address, with traffic spread across your nodes automatically. That is what a LoadBalancer 
+kubectl expose with --type=LoadBalancer - request a cloud load balancer Service (its external IP stays pending on kind
 
+example:
+kubectl get deploy web-lab >/dev/null 2>&1 || kubectl create deployment web-lab --image=nginx:alpine
+
+kubectl get svc web-lb >/dev/null 2>&1 || kubectl expose deployment web-lab --name=web-lb --type=LoadBalancer --port=80
+kubectl get svc web-lb
+=============================Reach some domain outside node=========================================
+Sometimes the thing you need to reach is not in the cluster at all - a managed database, a payment API, some service at an address like db.example.com. 
+It is pure DNS: a request inside the cluster for the Service name is answered with the external DNS name you set, so the caller is quietly redirected outward.
+apiVersion: v1
+kind: Service
+metadata:
+  name: ext-db
+spec:
+  type: ExternalName
+  externalName: db.example.com
+It does not proxy or load balance any traffic. It only answers a DNS lookup with another name. The actual connection goes straight from your pod to the external host.
+It has no port, no nodePort, and no external IP, because it is not opening any door into the cluster. It points from inside to outside.
+=========================================SUMMARY ServiceS:====================================
+ need access from outside the cluster?
+   no  -> ClusterIP          (just testing? add kubectl port-forward)
+   yes -> running in a cloud?
+            no  -> NodePort
+            yes -> LoadBalancer   (HTTP? put an Ingress in front)
+
+ pointing at an address outside the cluster instead? -> ExternalName
+
+================================================================================================================================
