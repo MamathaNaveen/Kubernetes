@@ -249,7 +249,77 @@ simple command "api" will work if namespace is same , but api.payments need if n
 ==============================
 
 =========================ConfigMaps=============================================
+Exists inside cluster for pods. to read configurations. Sepearte configmap can be created like test, prod, dev etc. 
+stores non-secret information. 
+Commands introduced
+kubectl create configmap <name> --from-literal=<KEY>=<value> - create a ConfigMap with the given name holding one key/value setting
+kubectl get configmap - list the ConfigMaps in the current namespace
+root@escbash-lab:~# kubectl create configmap app-settings --from-literal=APP_COLOR=blue,APP_MODE=production
+configmap/app-settings created
+root@escbash-lab:~# kubectl get configmap
+NAME               DATA   AGE
+app-settings       1      11s
+kube-root-ca.crt   1      110d
+root@escbash-lab:~# 
+root@escbash-lab:~# kubectl get configmap app-settings
+NAME           DATA   AGE
+app-settings   2      25s
+root@escbash-lab:~# kubectl describe configmap app-settings 
+Name:         app-settings
+Namespace:    default
+Labels:       <none>
+Annotations:  <none>
+Data
+====
+APP_COLOR:
+----
+blue
+APP_MODE:
+----
+production
+BinaryData
+====
+Events:  <none>
+root@escbash-lab:~# 
 
+Read from file:
+kubectl create configmap app-config --from-file=/root/app.properties (json or yaml format)
+
+root@escbash-lab:~# vi app.properties
+root@escbash-lab:~# kubectl create configmap app-config --from-file=app.properties
+configmap/app-config created
+root@escbash-lab:~# kubectl describe configmap app-config
+Name:         app-config
+Namespace:    default
+Labels:       <none>
+Annotations:  <none>
+Data
+====
+app.properties:
+----
+greeting=hello
+tier=backend
+BinaryData
+====
+Events:  <none>
+root@escbash-lab:~# 
+or use this: 
+root@escbash-lab:~# kubectl get configmap app-config -o yaml
+apiVersion: v1
+data:
+  app.properties: |
+    greeting=hello
+    tier=backend
+kind: ConfigMap
+metadata:
+  creationTimestamp: "2026-11-23T12:37:16Z"
+  name: app-config
+  namespace: default
+  resourceVersion: "1098"
+  uid: 8acb89b9-3cee-4d89-8688-aa985480ea0f
+root@escbash-lab:~# 
+
+=========================================Secrets===============================
 ======================================================================
 
 ========================================
