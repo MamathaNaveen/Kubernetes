@@ -176,4 +176,81 @@ It has no port, no nodePort, and no external IP, because it is not opening any d
 
  pointing at an address outside the cluster instead? -> ExternalName
 
-================================================================================================================================
+====================================Namespaces wuthin cluster namespaces can be acreated.============================================================================================
+two pods with same name on different namespace can co exist on the same cluster
+kubectl get namespaces > /root/namespaces.txt
+kubectl get pods -n kube-system > /root/kube-system-pods.txt
+
+manifest way:
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dev
+
+======================================deployment inside namepace================================================
+kubectl create deployment web --image=nginx:alpine -n dev
+kubectl apply -f web.yaml -n dev
+kubectl get deploy -n dev
+
+root@escbash-lab:~# cat web.yaml 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+  labels:
+    app: web
+spec:
+  selector:
+    matchLabels:
+      app: web
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+        - name: web
+          image: nginx:alpine
+root@escbash-lab:~# kubectl get pods
+No resources found in default namespace.
+root@escbash-lab:~# kubectl get pods -n dev
+NAME                   READY   STATUS    RESTARTS   AGE
+web-7c7784dd57-b5xqz   1/1     Running   0          22s
+root@escbash-lab:~# 
+
+==============================================Changing default namesapce "default" to "dev"=================
+kubectl config set-context --current --namespace=<name> - set the default namespace for your current context
+kubectl config view --minify -o jsonpath='{..namespace}' - print the namespace your current context is set to default.
+rerun to revert it back. 
+
+-n always works choose which namespace to use still. 
+
+root@escbash-lab:~# kubectl config set-context --current --namespace  dev
+Context "kind-kind" modified.
+root@escbash-lab:~# 
+root@escbash-lab:~# kubectl config view --minify -o jsonpath='{..namespace}'
+devroot@escbash-lab:~# 
+root@escbash-lab:~# kubectl get deploy -n dev
+NAME   READY   UP-TO-DATE   AVAILABLE   AGE
+test   1/1     1            1           45s
+web    1/1     1            1           18m
+root@escbash-lab:~# kubectl get deploy -n default
+No resources found in default namespace.
+root@escbash-lab:~# 
+
+============================service with NameSpace addressing==========================================
+Read it as "the Service api, over in payments." That two-part form is the one to remember: same namespace, 
+use the short name; different namespace, add the namespace after it. 
+Kubernetes fills in the rest of the DNS name either way.
+
+<service>.<namespace>.svc.cluster.local
+simple command "api" will work if namespace is same , but api.payments need if namespaces are diff in this case payments namespace. 
+==============================
+
+=========================ConfigMaps=============================================
+
+======================================================================
+
+========================================
+
