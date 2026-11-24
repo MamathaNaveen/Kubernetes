@@ -382,6 +382,22 @@ app-token:  12 bytes
 root@escbash-lab:~# 
 
 
+==============================getting config to pods
+apiVersion: v1
+kind: Pod
+metadata:
+  name: env-demo
+spec:
+  containers:
+    - name: app
+      image: busybox
+      command: ["sh", "-c", "sleep 3600"]
+      env:
+        - name: GREETING
+          value: hello
+
+kubectl exec env-demo -- printenv GREETING
+
 
 =================================================================
 
