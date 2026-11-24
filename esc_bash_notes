@@ -239,6 +239,7 @@ root@escbash-lab:~# kubectl get deploy -n default
 No resources found in default namespace.
 root@escbash-lab:~# 
 
+
 ============================service with NameSpace addressing==========================================
 Read it as "the Service api, over in payments." That two-part form is the one to remember: same namespace, 
 use the short name; different namespace, add the namespace after it. 
@@ -320,6 +321,18 @@ metadata:
 root@escbash-lab:~# 
 
 =========================================Secrets===============================
+Command:
+kubectl create secret generic app-secret --from-literal=token=sup3r-s3cr3t
+
+kubectl create secret generic db-secret \
+  --from-literal=username=admin \
+  --from-literal=password=P@ssw0rd
+
+kubectl get secrets
+
+kubectl get secret app-secret -o jsonpath='{.data.token}'
+Instead of sup3r-s3cr3t, you get something like c3VwM3ItczNjcjN0
+
 ======================================================================
 
 ========================================
