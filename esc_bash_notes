@@ -333,7 +333,57 @@ kubectl get secrets
 kubectl get secret app-secret -o jsonpath='{.data.token}'
 Instead of sup3r-s3cr3t, you get something like c3VwM3ItczNjcjN0
 
-======================================================================
+=====
+
+root@escbash-lab:~# kubectl create secret generic app-secret --from-liter
+al=token=sup3r-s3cr3t 
+secret/app-secret created
+root@escbash-lab:~# kubectl get secret
+NAME         TYPE     DATA   AGE
+app-secret   Opaque   1      10s
+root@escbash-lab:~# kubectl get secret -o yaml
+apiVersion: v1
+items:
+- apiVersion: v1
+  data:
+    token: c3VwM3ItczNjcjN0
+  kind: Secret
+  metadata:
+    creationTimestamp: "2026-11-24T11:05:52Z"
+    name: app-secret
+    namespace: default
+    resourceVersion: "630"
+    uid: c1ce8574-927a-4e31-8b1d-bfb2eeede366
+  type: Opaque
+kind: List
+metadata:
+  resourceVersion: ""
+root@escbash-lab:~# 
+
+Decode is EASY for Bas364:
+root@escbash-lab:~# echo "c3VwM3ItczNjcjN0" |base64 -d
+sup3r-s3cr3troot@escbash-lab:~# 
+
+You should not run get command to see secret. you can run describe just ti check if value exists for the key. Safe for screen share or paste copy etc.. 
+
+info on value and didnt reveal key. 
+
+root@escbash-lab:~# kubectl describe secret app-secret
+Name:         app-secret
+Namespace:    default
+Labels:       <none>
+Annotations:  <none>
+
+Type:  Opaque
+
+Data
+====
+app-token:  12 bytes
+root@escbash-lab:~# 
+
+
+
+=================================================================
 
 ========================================
 
