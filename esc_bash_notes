@@ -469,3 +469,32 @@ spec:
               memory: 128Mi
 
 
+Memory over the limit gets the container killed
+Memory is not something a container can be gently slowed down on - it either has the bytes or it does not. So when a container tries to use more memory than its limit, Kubernetes kills it. The kernel's out-of-memory killer steps in and stops the container, and Kubernetes records the reason as OOMKilled (short for Out Of Memory Killed).
+
+CPU over the limit gets throttled, not killed
+CPU behaves completely differently. You cannot run out of CPU the way you run out of memory - you can only be made to wait for your turn. So when a container reaches its CPU limit, Kubernetes does not kill it. It throttles it, meaning it holds the container back so it gets no more than its limit. The container keeps running, just slower.
+
+Too little memory kills your app; too little CPU only makes it slow. If a pod keeps restarting with OOMKilled, raise its memory limit or fix the leak. If an app feels sluggish under load but never crashes, its CPU limit may be too tight.
+
+
+root@escbash-lab:~# cat capped-pod.yaml 
+apiVersion: v1
+kind: Pod
+metadata:
+  name: capped-pod
+spec:
+  containers:
+    - name: web
+      image: nginx:alpine
+      resources:
+        limits:
+          memory: 64Mi
+
+
+root@escbash-lab:~# 
+
+
+
+
+
