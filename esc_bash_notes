@@ -496,5 +496,73 @@ root@escbash-lab:~#
 
 
 
+==========================================Health probes
+That mechanism is called a probe. A probe is a small, repeated health check that Kubernetes runs against your container on a schedule you set. Based on the answer, Kubernetes takes action - restart a hung container, or hold traffic back from one that is not ready yet.
+
+There are three kinds of probe, each answering a different question:
+
+Liveness - is this container still healthy, or is it stuck and in need of a restart?
+Readiness - is this container ready to receive traffic right now?
+Startup - has this slow-starting container finished coming up yet?
+
+A few optional settings tune the timing, and you will see them in describe output: initialDelaySeconds (wait this long before the first check), periodSeconds (how often to check), and failureThreshold (how many fails in a row before acting). The defaults are sensible, so you can leave them off to start. The key structure to remember is the one above: a livenessProbe on the container, with an httpGet naming a path and a port
+
+root@escbash-lab:~# cat liveliness.yaml 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+        - name: web
+          image: nginx:alpine
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+root@escbash-lab:~# 
+
+Readiness: Check if pos is ready to receieve requests checked from app side whether app is ready to service. it could creating database
+getting ready wih refreshing cache in these cases kubenetes doesnt not kill nbut waits till its ready and moves it aside from 
+serving requests. 
+
+out of endpoints untill its ready.
+
+root@escbash-lab:~# 
+root@escbash-lab:~# cat readiness.yaml 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+spec:
+  replicas: 1
+  selector:     
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+        - name: web
+          image: nginx:alpine
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+root@escbash-lab:~# 
+
+===================startup Probe==============
+
 
 
