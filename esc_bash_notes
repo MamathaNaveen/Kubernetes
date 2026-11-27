@@ -401,5 +401,71 @@ kubectl exec env-demo -- printenv GREETING
 
 =================================================================
 
+volumes:
 ========================================
+
+===============================Resources
+
+root@escbash-lab:~# kubectl apply -f web-tuned.yaml 
+Error from server (BadRequest): error when creating "web-tuned.yaml": Deployment in version "v1" cannot be handled as a Deployment: json: cannot unmarshal array into Go struct field PodTemplateSpec.spec.template.spec of type v1.PodSpec
+root@escbash-lab:~# vi web-tuned.yaml
+root@escbash-lab:~# kubectl apply -f web-tuned.yaml 
+deployment.apps/web-tuned created
+root@escbash-lab:~# cat web-tuned.yaml 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-tuned
+  labels:
+    app: web-tuned
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web-tuned
+  template:
+    metadata:
+      labels:
+        app: web-tuned
+    spec:
+      containers:
+        - name: web
+          image: nginx:alpine
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "100m"
+   
+    
+
+
+
+root@escbash-lab:~# 
+
+==========================APPLYINg Limits:================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-capped
+spec:
+  replicas: 1
+  selector: 
+    matchLabels:
+      app: web-capped
+  template:
+    metadata:
+      labels:
+        app: web-capped
+    spec:
+      containers:
+        - name: web
+          image: nginx:alpine
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi 
+            limits:
+              cpu: 250m
+              memory: 128Mi
+
 
