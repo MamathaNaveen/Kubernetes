@@ -563,6 +563,58 @@ spec:
 root@escbash-lab:~# 
 
 ===================startup Probe==============
+Some apps take a long time to come up - think of a heavy application that needs thirty or sixty seconds to load before it can answer anything. 
+The startup probe exists to protect those apps from their own liveness probe.
+container starts. starup probe takeover and keeps check if app is avail. once  booted Liveliness takes over. 
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: slow-app
+spec:
+  replicas: 1
+  selector: 
+    matchLabels:
+      app: slow-app
+  template:
+    metadata:
+      labels:
+        app: slow-app
+    spec:
+      containers:
+      - name: web
+        image: nginx:alpine
+        startupProbe:
+          httpGet:
+              path: /
+              port: 80
+
+ALL ABOVE ARE CHECKED FOR HTTP APPS CONTAINERS> 
+
+1. WHAT BOUT NON_HTTP there we have tcp_connection check.. 
+
+tcpSocket:
+  port: 5432
+
+Kubernetes just tries to open a TCP connection to a port. 
+If the connection opens, the check passes; if it is refused, it fails. It does not send or read any data.
+
+2. exec command:
+exec:
+  command:
+    - cat
+    - /etc/nginx/nginx.conf
+
+Choosing one
+Speaks HTTP? Reach for httpGet first.
+A non-HTTP service on a port (database, cache, queue)? Use tcpSocket.
+No port and no HTTP, but you can test health with a command? Use exec.
+
+
+The purpose and the mechanism are independent choices. 
+A readiness probe might use httpGet, a liveness probe on the same pod might use exec, and a startup probe might use tcpSocket - whatever fits what each check needs to learn.
+In the next task you will write a probe that uses exec.
+
 
 
 
